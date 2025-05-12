@@ -1,0 +1,77 @@
+-- 1) Demographic Distribution:
+select case 
+when age < 18 then 'under 18' 
+when age between 18 and 24 then '18-24' 
+when age between 25 and 34 then '25-34' 
+when age between 35 and 44 then '35-44' 
+when age between 45 and 54 then '45-54' 
+when age between 55 and 64 then '55-64' 
+else '65 and over' end as age_group, gender, city, customers_state, customers_country, customers_continent, count(customerkey) as total_customers 
+from dataspark group by gender, age, city, customers_state, customers_country, customers_continent;
+
+
+-- 2) Average Order Value:
+select sum(total_price) / count(distinct order_number) as aov from dataspark;
+
+-- 3) Segmentation Based on Avg Spending:
+select case 
+when age < 18 then 'under 18' 
+when age between 18 and 24 then '18-24' 
+when age between 25 and 34 then '25-34' 
+when age between 35 and 44 then '35-44' 
+when age between 45 and 54 then '45-54' 
+when age between 55 and 64 then '55-64' 
+else '65 and over' end as age_group, gender, count(customerkey) as total_customers, avg(total_price) as avg_spending 
+from (select customerkey, age, gender, total_price from dataspark) as customer_data group by age_group, gender;
+
+-- 4) Overall Sales Performance:
+select extract(year from order_date) as year, 
+extract(month from order_date) as month, 
+sum(total_price) as total_sales 
+from dataspark group by year, month order by year desc, month desc;
+
+
+-- 5) Sales by Product:
+select product_name, 
+sum(quantity) as total_quantity_sold, 
+sum(total_price) as total_revenue 
+from dataspark group by product_name order by total_revenue desc;
+
+
+
+-- 6) Sales by currency:
+select currency_code, 
+sum(total_price) as total_sales, 
+sum(exchange) as avg_exchange_rate 
+from dataspark group by currency_code;
+
+-- 7) Product Popularity: 
+select product_name, 
+sum(quantity) as total_quantity_sold, 
+count(distinct order_number) as total_orders 
+from dataspark group by product_name order by total_quantity_sold desc;
+
+-- 8) Profit By brand
+select brand, 
+avg(_unit_price_usd_ - _unit_cost_usd_) as avg_profit_margin 
+from dataspark group by brand order by avg_profit_margin desc;
+
+
+-- 9) Category Analysis:
+select category, 
+sum(total_price) as total_sales, 
+count(distinct product_name) as product_count 
+from dataspark group by category order by total_sales desc;
+
+
+-- 10) Store Analysis:
+select storekey, country_y, state_y, 
+square_meters, sum(total_price) as total_sales 
+from dataspark group by storekey, country_y, state_y, 
+square_meters order by total_sales desc;
+
+
+
+
+
+
